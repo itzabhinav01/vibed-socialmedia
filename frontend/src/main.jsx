@@ -7,6 +7,8 @@ import { Provider } from 'react-redux'
 import store from './redux/store.js'
 import { PersistGate } from 'redux-persist/integration/react'
 import { persistStore } from 'redux-persist'
+import { StagewiseToolbar } from '@stagewise/toolbar-react'
+import { ReactPlugin } from '@stagewise-plugins/react'
 
 let persistor = persistStore(store)
 
@@ -14,6 +16,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
+        <StagewiseToolbar config={{ plugins: [ReactPlugin()] }} />
         <App />
         <Toaster />
       </PersistGate>

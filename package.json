@@ -26,5 +26,6 @@
     "nodemon": "^3.1.4",
     "sharp": "^0.33.4",
     "socket.io": "^4.7.5"
-  }
+  },
+  "recommendations": ["stagewise.stagewise-vscode-extension"]
 }
