@@ -17,7 +17,10 @@ const EditProfile = () => {
     const [input, setInput] = useState({
         profilePhoto: user?.profilePicture,
         bio: user?.bio,
-        gender: user?.gender
+        gender: user?.gender,
+        highlight1: user?.highlights?.[0] || '',
+        highlight2: user?.highlights?.[1] || '',
+        highlight3: user?.highlights?.[2] || ''
     });
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -37,6 +40,7 @@ const EditProfile = () => {
         const formData = new FormData();
         formData.append("bio", input.bio);
         formData.append("gender", input.gender);
+        formData.append("highlights", JSON.stringify([input.highlight1, input.highlight2, input.highlight3]));
         if(input.profilePhoto){
             formData.append("profilePhoto", input.profilePhoto);
         }
@@ -53,7 +57,8 @@ const EditProfile = () => {
                     ...user,
                     bio:res.data.user?.bio,
                     profilePicture:res.data.user?.profilePicture,
-                    gender:res.data.user.gender
+                    gender:res.data.user.gender,
+                    highlights:res.data.user?.highlights
                 };
                 dispatch(setAuthUser(updatedUserData));
                 navigate(`/profile/${user?._id}`);
@@ -102,6 +107,12 @@ const EditProfile = () => {
                             </SelectGroup>
                         </SelectContent>
                     </Select>
+                </div>
+                <div>
+                    <h1 className='font-bold text-xl mb-2'>Highlights</h1>
+                    <Textarea value={input.highlight1} onChange={(e) => setInput({ ...input, highlight1: e.target.value })} name='highlight1' className="focus-visible:ring-transparent" placeholder="Highlight 1" />
+                    <Textarea value={input.highlight2} onChange={(e) => setInput({ ...input, highlight2: e.target.value })} name='highlight2' className="focus-visible:ring-transparent mt-2" placeholder="Highlight 2" />
+                    <Textarea value={input.highlight3} onChange={(e) => setInput({ ...input, highlight3: e.target.value })} name='highlight3' className="focus-visible:ring-transparent mt-2" placeholder="Highlight 3" />
                 </div>
                 <div className='flex justify-end'>
                     {

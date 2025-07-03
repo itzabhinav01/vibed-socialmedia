@@ -134,7 +134,7 @@ export const editProfile = async (req, res) => {
         };
         if (bio) user.bio = bio;
         if (gender) user.gender = gender;
-        if (req.body.highlights) user.highlights = req.body.highlights;
+        if (req.body.highlights) user.highlights = JSON.parse(req.body.highlights);
         if (profilePicture) user.profilePicture = cloudResponse.secure_url;
 
         await user.save();
