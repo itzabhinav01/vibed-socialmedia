@@ -25,7 +25,7 @@ const Signup = () => {
         e.preventDefault();
         try {
             setLoading(true);
-            const res = await axios.post('https://vibed.onrender.com/api/v1/user/register', input, {
+            const res = await axios.post('http://localhost:8000/api/v1/user/register', input, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -42,7 +42,13 @@ const Signup = () => {
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.response.data.message);
+            if (error.response) {
+                toast.error(error.response.data.message);
+            } else if (error.request) {
+                toast.error("Network Error: No response received from server.");
+            } else {
+                toast.error("An unexpected error occurred.");
+            }
         } finally {
             setLoading(false);
         }
