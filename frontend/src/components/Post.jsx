@@ -112,16 +112,16 @@ const Post = ({ post }) => {
                 <div className='flex items-center gap-2'>
                     <Avatar>
                         <AvatarImage src={post.author?.profilePicture} alt="post_image" />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarFallback className="text-black dark:text-white bg-gray-100 dark:bg-[#374151]">CN</AvatarFallback>
                     </Avatar>
                     <div className='flex items-center gap-3'>
-                        <h1>{post.author?.username}</h1>
+                        <h1 className="text-black dark:text-white">{post.author?.username}</h1>
                        {user?._id === post.author._id &&  <Badge variant="secondary">Author</Badge>}
                     </div>
                 </div>
                 <Dialog>
                     <DialogTrigger asChild>
-                        <MoreHorizontal className='cursor-pointer' />
+                        <MoreHorizontal className='cursor-pointer text-black dark:text-white' />
                     </DialogTrigger>
                     <DialogContent className="flex flex-col items-center text-sm text-center">
                         {
@@ -144,28 +144,28 @@ const Post = ({ post }) => {
             <div className='flex items-center justify-between my-2'>
                 <div className='flex items-center gap-3'>
                     {
-                        liked ? <FaHeart onClick={likeOrDislikeHandler} size={'24'} className='cursor-pointer text-red-600' /> : <FaRegHeart onClick={likeOrDislikeHandler} size={'22px'} className='cursor-pointer hover:text-gray-600' />
+                        liked ? <FaHeart onClick={likeOrDislikeHandler} size={'24'} className='cursor-pointer text-red-600' /> : <FaRegHeart onClick={likeOrDislikeHandler} size={'22px'} className='cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 text-black dark:text-white' />
                     }
 
                     <MessageCircle onClick={() => {
                         dispatch(setSelectedPost(post));
                         setOpen(true);
-                    }} className='cursor-pointer hover:text-gray-600' />
-                    <Send className='cursor-pointer hover:text-gray-600' />
+                    }} className='cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 text-black dark:text-white' />
+                    <Send className='cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 text-black dark:text-white' />
                 </div>
-                <Bookmark onClick={bookmarkHandler} className='cursor-pointer hover:text-gray-600' />
+                <Bookmark onClick={bookmarkHandler} className='cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 text-black dark:text-white' />
             </div>
-            <span className='font-medium block mb-2'>{postLike} likes</span>
+            <span className='font-medium block mb-2 text-black dark:text-white'>{postLike} likes</span>
             <p>
-                <span className='font-medium mr-2'>{post.author?.username}</span>
-                {post.caption}
+                <span className='font-medium mr-2 text-black dark:text-white'>{post.author?.username}</span>
+                <span className='text-black dark:text-white'>{post.caption}</span>
             </p>
             {
                 comment.length > 0 && (
                     <span onClick={() => {
                         dispatch(setSelectedPost(post));
                         setOpen(true);
-                    }} className='cursor-pointer text-sm text-gray-400'>View all {comment.length} comments</span>
+                    }} className='cursor-pointer text-sm text-gray-400 dark:text-gray-300'>View all {comment.length} comments</span>
                 )
             }
             <CommentDialog open={open} setOpen={setOpen} />
@@ -175,7 +175,7 @@ const Post = ({ post }) => {
                     placeholder='Add a comment...'
                     value={text}
                     onChange={changeEventHandler}
-                    className='outline-none text-sm w-full'
+                    className='outline-none text-sm w-full bg-white dark:bg-[#2C2C2E] text-black dark:text-white border border-gray-200 dark:border-gray-800 rounded-md px-2 py-1'
                 />
                 {
                     text && <span onClick={commentHandler} className='text-[#3BADF8] cursor-pointer'>Post</span>

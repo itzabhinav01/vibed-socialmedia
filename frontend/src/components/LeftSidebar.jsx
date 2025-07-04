@@ -1,5 +1,5 @@
 import { Heart, Home, LogOut, MessageCircle, PlusSquare, Search, TrendingUp } from 'lucide-react'
-import React, { useState } from 'react'
+import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { toast } from 'sonner'
 import axios from 'axios'
@@ -16,8 +16,7 @@ const LeftSidebar = () => {
     const { user } = useSelector(store => store.auth);
     const { likeNotification } = useSelector(store => store.realTimeNotification);
     const dispatch = useDispatch();
-    const [open, setOpen] = useState(false);
-
+    const [open, setOpen] = React.useState(false);
 
     const logoutHandler = async () => {
         try {
@@ -49,12 +48,12 @@ const LeftSidebar = () => {
     }
 
     const sidebarItems = [
-        { icon: <Home />, text: "Home" },
-        { icon: <Search />, text: "Search" },
-        { icon: <TrendingUp />, text: "Explore" },
-        { icon: <MessageCircle />, text: "Messages" },
-        { icon: <Heart />, text: "Notifications" },
-        { icon: <PlusSquare />, text: "Create" },
+        { icon: <Home className="text-black dark:text-white" />, text: "Home" },
+        { icon: <Search className="text-black dark:text-white" />, text: "Search" },
+        { icon: <TrendingUp className="text-black dark:text-white" />, text: "Explore" },
+        { icon: <MessageCircle className="text-black dark:text-white" />, text: "Messages" },
+        { icon: <Heart className="text-black dark:text-white" />, text: "Notifications" },
+        { icon: <PlusSquare className="text-black dark:text-white" />, text: "Create" },
         {
             icon: (
                 <Avatar className='w-6 h-6'>
@@ -64,17 +63,17 @@ const LeftSidebar = () => {
             ),
             text: "Profile"
         },
-        { icon: <LogOut />, text: "Logout" },
+        { icon: <LogOut className="text-black dark:text-white" />, text: "Logout" },
     ]
     return (
-        <div className='fixed top-0 z-10 left-0 px-4 border-r border-gray-300 w-[16%] h-screen'>
-            <div className='flex flex-col'>
-                <h1 className='my-8 pl-3 font-bold text-xl'>LOGO</h1>
+        <div className={`fixed top-0 z-10 left-0 h-screen flex flex-col bg-white dark:bg-black border-r border-gray-200 dark:border-gray-800 transition-colors duration-300 w-[240px]`}>
+            <div className='flex flex-col mt-8'>
+                <h1 className='pl-3 font-bold text-2xl text-black dark:text-white tracking-tight mb-8'>VIBED</h1>
                 <div>
                     {
                         sidebarItems.map((item, index) => {
                             return (
-                                <div onClick={() => sidebarHandler(item.text)} key={index} className='flex items-center gap-3 relative hover:bg-gray-100 cursor-pointer rounded-lg p-3 my-3'>
+                                <div onClick={() => sidebarHandler(item.text)} key={index} className='flex items-center gap-3 relative hover:bg-gray-100 dark:hover:bg-[#1F2937] cursor-pointer rounded-lg p-3 my-2 transition-colors duration-200 text-black dark:text-white'>
                                     {item.icon}
                                     <span>{item.text}</span>
                                     {
@@ -83,7 +82,7 @@ const LeftSidebar = () => {
                                                 <PopoverTrigger asChild>
                                                     <Button size='icon' className="rounded-full h-5 w-5 bg-red-600 hover:bg-red-600 absolute bottom-6 left-6">{likeNotification.length}</Button>
                                                 </PopoverTrigger>
-                                                <PopoverContent>
+                                                <PopoverContent className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800">
                                                     <div>
                                                         {
                                                             likeNotification.length === 0 ? (<p>No new notification</p>) : (
@@ -111,9 +110,7 @@ const LeftSidebar = () => {
                     }
                 </div>
             </div>
-
             <CreatePost open={open} setOpen={setOpen} />
-
         </div>
     )
 }

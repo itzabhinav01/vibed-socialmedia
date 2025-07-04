@@ -39,22 +39,24 @@ const ChatPage = () => {
     },[]);
 
     return (
-        <div className='flex ml-[16%] h-screen'>
-            <section className='w-full md:w-1/4 my-8'>
-                <h1 className='font-bold mb-4 px-3 text-xl'>{user?.username}</h1>
-                <hr className='mb-4 border-gray-300' />
-                <div className='overflow-y-auto h-[80vh]'>
+        <div className="h-full flex flex-col md:flex-row">
+            {/* User list panel */}
+            <div className="w-full h-64 md:w-72 md:h-full flex-shrink-0 flex flex-col border-b md:border-b-0 md:border-r border-gray-300 dark:border-gray-800 bg-white dark:bg-black">
+                <h1 className='font-bold px-3 py-4 text-xl text-black dark:text-white border-b border-gray-300 dark:border-gray-800 w-full'>
+                    {user?.username}
+                </h1>
+                <div className='flex-1 overflow-y-auto w-full'>
                     {
                         suggestedUsers.map((suggestedUser) => {
                             const isOnline = onlineUsers.includes(suggestedUser?._id);
                             return (
-                                <div onClick={() => dispatch(setSelectedUser(suggestedUser))} className='flex gap-3 items-center p-3 hover:bg-gray-50 cursor-pointer'>
-                                    <Avatar className='w-14 h-14'>
+                                <div onClick={() => dispatch(setSelectedUser(suggestedUser))} className='flex gap-3 items-center p-3 hover:bg-gray-50 dark:hover:bg-[#1F2937] cursor-pointer rounded-lg transition-colors duration-200 w-full'>
+                                    <Avatar className='w-14 h-14 bg-gray-100 dark:bg-[#374151]'>
                                         <AvatarImage src={suggestedUser?.profilePicture} />
-                                        <AvatarFallback>CN</AvatarFallback>
+                                        <AvatarFallback className="text-black dark:text-white">CN</AvatarFallback>
                                     </Avatar>
                                     <div className='flex flex-col'>
-                                        <span className='font-medium'>{suggestedUser?.username}</span>
+                                        <span className='font-medium text-black dark:text-white'>{suggestedUser?.username}</span>
                                         <span className={`text-xs font-bold ${isOnline ? 'text-green-600' : 'text-red-600'} `}>{isOnline ? 'online' : 'offline'}</span>
                                     </div>
                                 </div>
@@ -62,34 +64,37 @@ const ChatPage = () => {
                         })
                     }
                 </div>
-
-            </section>
-            {
-                selectedUser ? (
-                    <section className='flex-1 border-l border-l-gray-300 flex flex-col h-full'>
-                        <div className='flex gap-3 items-center px-3 py-2 border-b border-gray-300 sticky top-0 bg-white z-10'>
-                            <Avatar>
-                                <AvatarImage src={selectedUser?.profilePicture} alt='profile' />
-                                <AvatarFallback>CN</AvatarFallback>
-                            </Avatar>
-                            <div className='flex flex-col'>
-                                <span>{selectedUser?.username}</span>
-                            </div>
+            </div>
+            {/* Chat window */}
+            {selectedUser ? (
+                <div className='flex-1 h-full flex flex-col bg-white dark:bg-black'>
+                    {/* Top bar */}
+                    <div className='flex items-center px-3 py-2 border-b border-gray-300 dark:border-gray-800 w-full'>
+                        <Avatar>
+                            <AvatarImage src={selectedUser?.profilePicture} alt='profile' />
+                            <AvatarFallback className="text-black dark:text-white bg-gray-100 dark:bg-[#374151]">CN</AvatarFallback>
+                        </Avatar>
+                        <div className='flex flex-col ml-2'>
+                            <span className="text-black dark:text-white">{selectedUser?.username}</span>
                         </div>
-                        <Messages selectedUser={selectedUser} />
-                        <div className='flex items-center p-4 border-t border-t-gray-300'>
-                            <Input value={textMessage} onChange={(e) => setTextMessage(e.target.value)} type="text" className='flex-1 mr-2 focus-visible:ring-transparent' placeholder="Messages..." />
-                            <Button onClick={() => sendMessageHandler(selectedUser?._id)}>Send</Button>
-                        </div>
-                    </section>
-                ) : (
-                    <div className='flex flex-col items-center justify-center mx-auto'>
-                        <MessageCircleCode className='w-32 h-32 my-4' />
-                        <h1 className='font-medium'>Your messages</h1>
-                        <span>Send a message to start a chat.</span>
                     </div>
-                )
-            }
+                    {/* Messages */}
+                    <div className='flex-1 overflow-y-auto w-full'>
+                        <Messages selectedUser={selectedUser} />
+                    </div>
+                    {/* Input */}
+                    <div className='flex items-center p-4 border-t border-gray-300 dark:border-gray-800 w-full'>
+                        <Input value={textMessage} onChange={(e) => setTextMessage(e.target.value)} type="text" className='flex-1 mr-2 focus-visible:ring-transparent bg-white dark:bg-[#2C2C2E] text-black dark:text-white border border-gray-200 dark:border-gray-800 rounded-md px-2 py-1' placeholder="Messages..." />
+                        <Button className="bg-[#877EFF] text-white rounded-full py-2 px-6 font-semibold shadow-md hover:bg-[#6C63FF] transition" onClick={() => sendMessageHandler(selectedUser?._id)}>Send</Button>
+                    </div>
+                </div>
+            ) : (
+                <div className='flex-1 h-full flex flex-col items-center justify-center text-black dark:text-white'>
+                    <MessageCircleCode className='w-32 h-32 my-4' />
+                    <h1 className='font-medium'>Your messages</h1>
+                    <span>Send a message to start a chat.</span>
+                </div>
+            )}
         </div>
     )
 }

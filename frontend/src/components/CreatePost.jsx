@@ -42,7 +42,7 @@ const CreatePost = ({ open, setOpen }) => {
         withCredentials: true
       });
       if (res.data.success) {
-        dispatch(setPosts([res.data.post, ...posts]));// [1] -> [1,2] -> total element = 2
+        dispatch(setPosts([res.data.post, ...posts]));
         toast.success(res.data.message);
         setOpen(false);
       }
@@ -55,37 +55,37 @@ const CreatePost = ({ open, setOpen }) => {
 
   return (
     <Dialog open={open}>
-      <DialogContent onInteractOutside={() => setOpen(false)}>
-        <DialogHeader className='text-center font-semibold'>Create New Post</DialogHeader>
-        <div className='flex gap-3 items-center'>
+      <DialogContent onInteractOutside={() => setOpen(false)} className="max-w-lg rounded-2xl bg-white dark:bg-black border border-gray-200 dark:border-gray-800 p-6">
+        <DialogHeader className='text-center font-bold text-2xl mb-2 text-black dark:text-white tracking-tight'>VIBED - Create New Post</DialogHeader>
+        <div className='flex gap-3 items-center mb-4'>
           <Avatar>
             <AvatarImage src={user?.profilePicture} alt="img" />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
           <div>
-            <h1 className='font-semibold text-xs'>{user?.username}</h1>
-            <span className='text-gray-600 text-xs'>Bio here...</span>
+            <h1 className='font-semibold text-xs text-black dark:text-white'>{user?.username}</h1>
+            <span className='text-gray-600 dark:text-gray-400 text-xs'>Bio here...</span>
           </div>
         </div>
-        <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} className="focus-visible:ring-transparent border-none" placeholder="Write a caption..." />
+        <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} className="bg-gray-100 dark:bg-[#374151] border border-gray-300 dark:border-[#374151] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#877EFF] focus:border-[#877EFF] transition mb-2" placeholder="Write a caption..." />
         {
           imagePreview && (
-            <div className='w-full h-64 flex items-center justify-center'>
+            <div className='w-full h-64 flex items-center justify-center mb-4'>
               <img src={imagePreview} alt="preview_img" className='object-cover h-full w-full rounded-md' />
             </div>
           )
         }
         <input ref={imageRef} type='file' className='hidden' onChange={fileChangeHandler} />
-        <Button onClick={() => imageRef.current.click()} className='w-fit mx-auto bg-[#0095F6] hover:bg-[#258bcf] '>Select from computer</Button>
+        <Button onClick={() => imageRef.current.click()} className='w-fit mx-auto bg-[#877EFF] hover:bg-[#6C63FF] text-white rounded-full py-2 px-6 font-semibold shadow-md transition mb-2'>Select from computer</Button>
         {
           imagePreview && (
             loading ? (
-              <Button>
+              <Button className="bg-[#877EFF] text-white rounded-full py-2 px-6 font-semibold shadow-md hover:bg-[#6C63FF] transition">
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                 Please wait
               </Button>
             ) : (
-              <Button onClick={createPostHandler} type="submit" className="w-full">Post</Button>
+              <Button onClick={createPostHandler} type="submit" className="w-full bg-[#877EFF] text-white rounded-full py-2 px-6 font-semibold shadow-md hover:bg-[#6C63FF] transition">Post</Button>
             )
           )
         }
