@@ -38,7 +38,8 @@ const Login = () => {
         e.preventDefault();
         try {
             setLoading(true);
-            const res = await axios.post('http://localhost:8000/api/v1/user/login', input, {
+            const API_URL = import.meta.env.VITE_BACKEND_URL;
+            const res = await axios.post(`${API_URL}/api/v1/user/login`, input, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
