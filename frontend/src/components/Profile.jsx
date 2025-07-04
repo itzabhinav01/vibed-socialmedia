@@ -5,7 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { AtSign, Heart, MessageCircle } from 'lucide-react';
+import { AtSign, Heart, MessageCircle, Bookmark, Grid, Video, Tag, Settings, MoreHorizontal } from 'lucide-react';
 import useFollowOrUnfollow from '@/hooks/useFollowOrUnfollow';
 import { setSelectedUser } from '@/redux/chatSlice';
 
@@ -35,89 +35,115 @@ const Profile = () => {
   const displayedPost = activeTab === 'posts' ? userProfile?.posts : userProfile?.bookmarks;
 
   return (
-    <div className='flex max-w-5xl justify-center mx-auto pl-10 bg-white dark:bg-black text-black dark:text-white'>
-      <div className='flex flex-col gap-20 p-8'>
-        <div className='grid grid-cols-2'>
-          <section className='flex items-center justify-center'>
-            <Avatar className='h-32 w-32'>
+    <div className="w-full flex justify-center bg-white dark:bg-black text-black dark:text-white min-h-screen">
+      <div className="w-full max-w-5xl mx-auto px-4 py-8 md:pl-60">
+        {/* Profile header row (horizontal on desktop, stacked on mobile) */}
+        <div className="flex flex-col md:flex-row items-start md:gap-12 gap-6 mb-4">
+          {/* Profile image */}
+          <div className="flex-shrink-0 flex flex-col items-center w-40">
+            <Avatar className="h-32 w-32 md:h-40 md:w-40 border-2 border-gray-300 dark:border-gray-700">
               <AvatarImage src={userProfile?.profilePicture} alt="profilephoto" />
               <AvatarFallback className="text-black dark:text-white bg-gray-100 dark:bg-[#374151]">CN</AvatarFallback>
             </Avatar>
-          </section>
-          <section>
-            <div className='flex flex-col gap-5'>
-              <div className='flex items-center gap-2'>
-                <span className="text-black dark:text-white">{userProfile?.username}</span>
-                {
-                  isLoggedInUserProfile ? (
-                    <>
-                      <Link to="/account/edit"><Button variant='secondary' className='hover:bg-gray-200 h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>Edit profile</Button></Link>
-                      <Button variant='secondary' className='hover:bg-gray-200 h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>View archive</Button>
-                      <Button variant='secondary' className='hover:bg-gray-200 h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>Ad tools</Button>
-                    </>
-                  ) : (
-                    isFollowing ? (
-                      <>
-                        <Button onClick={() => followOrUnfollow(userProfile?._id)} variant='secondary' className='h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>Unfollow</Button>
-                        <Button onClick={() => messageHandler(userProfile)} variant='secondary' className='h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>Message</Button>
-                      </>
-                    ) : (
-                      <Button onClick={() => followOrUnfollow(userProfile?._id)} className='bg-[#0095F6] hover:bg-[#3192d2] h-8 text-white'>Follow</Button>
-                    )
-                  )
-                }
+          </div>
+          {/* Profile info */}
+          <div className="flex-1 flex flex-col gap-4 items-center md:items-start w-full">
+            {/* Username, buttons */}
+            <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 w-full">
+              <span className="font-semibold text-2xl text-black dark:text-white">{userProfile?.username}</span>
+              {isLoggedInUserProfile ? (
+                <div className="flex gap-2">
+                  <Link to="/account/edit"><Button variant='secondary' className='hover:bg-gray-200 dark:hover:bg-[#23272e] h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>Edit profile</Button></Link>
+                  <Button variant='secondary' className='hover:bg-gray-200 dark:hover:bg-[#23272e] h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>View archive</Button>
+                </div>
+              ) : (
+                isFollowing ? (
+                  <div className="flex gap-2">
+                    <Button onClick={() => followOrUnfollow(userProfile?._id)} variant='secondary' className='h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>Unfollow</Button>
+                    <Button onClick={() => messageHandler(userProfile)} variant='secondary' className='h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>Message</Button>
+                  </div>
+                ) : (
+                  <Button onClick={() => followOrUnfollow(userProfile?._id)} className='bg-[#0095F6] hover:bg-[#3192d2] h-8 text-white'>Follow</Button>
+                )
+              )}
+            </div>
+            {/* Stats */}
+            <div className="flex gap-8 text-center md:text-left w-full justify-center md:justify-start">
+              <span><b className="text-black dark:text-white">{userProfile?.posts.length}</b> posts</span>
+              <span><b className="text-black dark:text-white">{userProfile?.followers.length}</b> followers</span>
+              <span><b className="text-black dark:text-white">{userProfile?.following.length}</b> following</span>
+            </div>
+            {/* Name, bio */}
+            <div className="text-center md:text-left w-full">
+              <span className="font-bold block text-black dark:text-white">{userProfile?.name || userProfile?.username}</span>
+              <p className="text-sm text-black dark:text-white">{userProfile?.bio || 'bio here...'}</p>
+              <Badge className='w-fit bg-gray-100 dark:bg-[#23272e] text-black dark:text-white mt-1' variant='secondary'><AtSign /> <span className='pl-1'>{userProfile?.username}</span> </Badge>
+            </div>
+          </div>
+        </div>
+        {/* Highlights row */}
+        <div className="flex gap-4 mb-4 w-full justify-center md:justify-start">
+          {(userProfile?.highlights && userProfile.highlights.length > 0) ? userProfile.highlights.map((highlight, idx) => (
+            <div key={idx} className="flex flex-col items-center">
+              <Avatar className="w-16 h-16 border-2 border-gray-300 dark:border-gray-700">
+                <AvatarFallback className="text-black dark:text-white bg-gray-100 dark:bg-[#374151]">H</AvatarFallback>
+              </Avatar>
+              <span className="text-xs mt-1 text-black dark:text-white">{highlight}</span>
+            </div>
+          )) : (
+            // Show 4 placeholder highlights if none exist
+            Array.from({ length: 4 }).map((_, idx) => (
+              <div key={idx} className="flex flex-col items-center opacity-50">
+                <Avatar className="w-16 h-16 border-2 border-gray-300 dark:border-gray-700">
+                  <AvatarFallback className="text-black dark:text-white bg-gray-100 dark:bg-[#374151]">+</AvatarFallback>
+                </Avatar>
+                <span className="text-xs mt-1 text-black dark:text-white">New</span>
               </div>
-              <div className='flex items-center gap-4'>
-                <p><span className='font-semibold text-black dark:text-white'>{userProfile?.posts.length} </span>posts</p>
-                <p><span className='font-semibold text-black dark:text-white'>{userProfile?.followers.length} </span>followers</p>
-                <p><span className='font-semibold text-black dark:text-white'>{userProfile?.following.length} </span>following</p>
-              </div>
-              <div className='flex flex-col gap-1'>
-                <span className='font-semibold text-black dark:text-white'>{userProfile?.bio || 'bio here...'}</span>
-                <Badge className='w-fit bg-gray-100 dark:bg-[#23272e] text-black dark:text-white' variant='secondary'><AtSign /> <span className='pl-1'>{userProfile?.username}</span> </Badge>
-                {
-                  userProfile?.highlights?.map((highlight, index) => (
-                    <span key={index} className="text-black dark:text-white">{highlight}</span>
-                  ))
-                }
+            ))
+          )}
+        </div>
+        {/* Tabs */}
+        <div className="flex justify-center border-t border-b py-2 mb-4 w-full">
+          <div className="flex w-full max-w-md">
+            <button className={`flex flex-col items-center flex-1 ${activeTab === 'posts' ? 'font-bold border-t-2 border-black dark:border-white text-black dark:text-white' : 'text-gray-500 dark:text-gray-400'}`} onClick={() => handleTabChange('posts')}>
+              <Grid className="w-5 h-5 mx-auto" />
+              <span className="text-xs">POSTS</span>
+            </button>
+            <button className={`flex flex-col items-center flex-1 ${activeTab === 'saved' ? 'font-bold border-t-2 border-black dark:border-white text-black dark:text-white' : 'text-gray-500 dark:text-gray-400'}`} onClick={() => handleTabChange('saved')}>
+              <Bookmark className="w-5 h-5 mx-auto" />
+              <span className="text-xs">SAVED</span>
+            </button>
+            <button className="flex flex-col items-center flex-1 opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-600">
+              <Video className="w-5 h-5 mx-auto" />
+              <span className="text-xs">REELS</span>
+            </button>
+            <button className="flex flex-col items-center flex-1 opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-600">
+              <Tag className="w-5 h-5 mx-auto" />
+              <span className="text-xs">TAGS</span>
+            </button>
+          </div>
+        </div>
+        {/* Posts grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
+          {displayedPost?.length > 0 ? displayedPost.map((post) => (
+            <div key={post?._id} className='relative group cursor-pointer'>
+              <img src={post.image} alt='postimage' className='w-full aspect-square object-cover' />
+              <div className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                <div className='flex items-center text-white space-x-4'>
+                  <button className='flex items-center gap-2 hover:text-gray-300'>
+                    <Heart />
+                    <span>{post?.likes.length}</span>
+                  </button>
+                  <button className='flex items-center gap-2 hover:text-gray-300'>
+                    <MessageCircle />
+                    <span>{post?.comments.length}</span>
+                  </button>
+                </div>
               </div>
             </div>
-          </section>
-        </div>
-        <div className='border-t border-t-gray-200 dark:border-t-gray-800'>
-          <div className='flex items-center justify-center gap-10 text-sm'>
-            <span className={`py-3 cursor-pointer ${activeTab === 'posts' ? 'font-bold' : ''} text-black dark:text-white`} onClick={() => handleTabChange('posts')}>
-              POSTS
-            </span>
-            <span className={`py-3 cursor-pointer ${activeTab === 'saved' ? 'font-bold' : ''} text-black dark:text-white`} onClick={() => handleTabChange('saved')}>
-              SAVED
-            </span>
-            <span className='py-3 cursor-pointer text-black dark:text-white'>REELS</span>
-            <span className='py-3 cursor-pointer text-black dark:text-white'>TAGS</span>
-          </div>
-          <div className='grid grid-cols-3 gap-1'>
-            {
-              displayedPost?.map((post) => {
-                return (
-                  <div key={post?._id} className='relative group cursor-pointer'>
-                    <img src={post.image} alt='postimage' className='rounded-sm my-2 w-full aspect-square object-cover' />
-                    <div className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-                      <div className='flex items-center text-white space-x-4'>
-                        <button className='flex items-center gap-2 hover:text-gray-300'>
-                          <Heart />
-                          <span>{post?.likes.length}</span>
-                        </button>
-                        <button className='flex items-center gap-2 hover:text-gray-300'>
-                          <MessageCircle />
-                          <span>{post?.comments.length}</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })
-            }
-          </div>
+          )) : (
+            <div className="col-span-3 text-center text-gray-400 dark:text-gray-600 py-10">No posts to show.</div>
+          )}
         </div>
       </div>
     </div>
