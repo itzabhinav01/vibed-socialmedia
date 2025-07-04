@@ -12,6 +12,7 @@ import { setPosts, setSelectedPost } from '@/redux/postSlice'
 import { Badge } from './ui/badge'
 
 const Post = ({ post }) => {
+    const API_URL = import.meta.env.VITE_BACKEND_URL;
     const [text, setText] = useState("");
     const [open, setOpen] = useState(false);
     const { user } = useSelector(store => store.auth);
@@ -33,7 +34,7 @@ const Post = ({ post }) => {
     const likeOrDislikeHandler = async () => {
         try {
             const action = liked ? 'dislike' : 'like';
-            const res = await axios.get(`http://localhost:8000/api/v1/post/${post._id}/${action}`, { withCredentials: true });
+            const res = await axios.get(`${API_URL}/api/v1/post/${post._id}/${action}`, { withCredentials: true });
             console.log(res.data);
             if (res.data.success) {
                 const updatedLikes = liked ? postLike - 1 : postLike + 1;
@@ -56,9 +57,8 @@ const Post = ({ post }) => {
     }
 
     const commentHandler = async () => {
-
         try {
-            const res = await axios.post(`http://localhost:8000/api/v1/post/${post._id}/comment`, { text }, {
+            const res = await axios.post(`${API_URL}/api/v1/post/${post._id}/comment`, { text }, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -84,7 +84,7 @@ const Post = ({ post }) => {
 
     const deletePostHandler = async () => {
         try {
-            const res = await axios.delete(`http://localhost:8000/api/v1/post/delete/${post?._id}`, { withCredentials: true })
+            const res = await axios.delete(`${API_URL}/api/v1/post/delete/${post?._id}`, { withCredentials: true })
             if (res.data.success) {
                 const updatedPostData = posts.filter((postItem) => postItem?._id !== post?._id);
                 dispatch(setPosts(updatedPostData));
@@ -98,7 +98,7 @@ const Post = ({ post }) => {
 
     const bookmarkHandler = async () => {
         try {
-            const res = await axios.get(`http://localhost:8000/api/v1/post/${post?._id}/bookmark`, {withCredentials:true});
+            const res = await axios.get(`${API_URL}/api/v1/post/${post?._id}/bookmark`, {withCredentials:true});
             if(res.data.success){
                 toast.success(res.data.message);
             }
