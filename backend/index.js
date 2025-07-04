@@ -20,10 +20,17 @@ const __dirname = path.resolve();
 app.use(express.json());
 app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
+const allowedOrigins = process.env.URL ? process.env.URL.split(',') : [];
 const corsOptions = {
-    origin: process.env.URL,
+    origin: (origin, callback) => {
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
-}
+};
 app.use(cors(corsOptions));
 
 // yha pr apni api ayengi
