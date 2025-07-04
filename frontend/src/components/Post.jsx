@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
-import { Bookmark, MessageCircle, MoreHorizontal, Send } from 'lucide-react'
+import { Bookmark, MessageCircle, MoreHorizontal, Send, BookmarkCheck } from 'lucide-react'
+import { saveAs } from 'file-saver';
 import { Button } from './ui/button'
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import CommentDialog from './CommentDialog'
@@ -20,6 +21,7 @@ const Post = ({ post }) => {
     const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
     const [postLike, setPostLike] = useState(post.likes.length);
     const [comment, setComment] = useState(post.comments);
+    const [bookmarked, setBookmarked] = useState(user?.bookmarks?.includes(post._id) || false);
     const dispatch = useDispatch();
 
     const changeEventHandler = (e) => {
@@ -100,12 +102,18 @@ const Post = ({ post }) => {
         try {
             const res = await axios.get(`${API_URL}/api/v1/post/${post?._id}/bookmark`, {withCredentials:true});
             if(res.data.success){
+                setBookmarked(res.data.type === 'saved');
                 toast.success(res.data.message);
             }
         } catch (error) {
             console.log(error);
         }
     }
+
+    const downloadImage = () => {
+        saveAs(post.image, `vibed_post_${post._id}.jpg`);
+    }
+
     return (
         <div className='my-8 w-full max-w-sm mx-auto'>
             <div className='flex items-center justify-between'>
@@ -151,9 +159,11 @@ const Post = ({ post }) => {
                         dispatch(setSelectedPost(post));
                         setOpen(true);
                     }} className='cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 text-black dark:text-white' />
-                    <Send className='cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 text-black dark:text-white' />
+                    <Send onClick={downloadImage} className='cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 text-black dark:text-white' />
                 </div>
-                <Bookmark onClick={bookmarkHandler} className='cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 text-black dark:text-white' />
+                {
+                    bookmarked ? <BookmarkCheck onClick={bookmarkHandler} className='cursor-pointer text-[#3BADF8]' /> : <Bookmark onClick={bookmarkHandler} className='cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 text-black dark:text-white' />
+                }
             </div>
             <span className='font-medium block mb-2 text-black dark:text-white'>{postLike} likes</span>
             <p>
