@@ -15,19 +15,19 @@ const EditProfile = () => {
     const { user } = useSelector(store => store.auth);
     const [loading, setLoading] = useState(false);
     const [input, setInput] = useState({
-        profilePhoto: user?.profilePicture,
         bio: user?.bio,
         gender: user?.gender,
         highlight1: user?.highlights?.[0] || '',
         highlight2: user?.highlights?.[1] || '',
         highlight3: user?.highlights?.[2] || ''
     });
+    const [selectedFile, setSelectedFile] = useState(null);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const fileChangeHandler = (e) => {
         const file = e.target.files?.[0];
-        if (file) setInput({ ...input, profilePhoto: file });
+        if (file) setSelectedFile(file);
     }
 
     const selectChangeHandler = (value) => {
@@ -41,8 +41,8 @@ const EditProfile = () => {
         formData.append("bio", input.bio);
         formData.append("gender", input.gender);
         formData.append("highlights", JSON.stringify([input.highlight1, input.highlight2, input.highlight3]));
-        if(input.profilePhoto){
-            formData.append("profilePhoto", input.profilePhoto);
+        if(selectedFile){
+            formData.append("profilePicture", selectedFile);
         }
         try {
             setLoading(true);
@@ -80,7 +80,7 @@ const EditProfile = () => {
                 <div className='flex items-center justify-between bg-gray-100 dark:bg-[#23272e] rounded-xl p-4'>
                     <div className='flex items-center gap-3'>
                         <Avatar>
-                            <AvatarImage src={user?.profilePicture} alt="post_image" />
+                            <AvatarImage src={selectedFile ? URL.createObjectURL(selectedFile) : user?.profilePicture} alt="post_image" />
                             <AvatarFallback className="text-black dark:text-white bg-gray-100 dark:bg-[#374151]">CN</AvatarFallback>
                         </Avatar>
                         <div>
