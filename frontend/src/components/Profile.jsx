@@ -1,25 +1,35 @@
 import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import useGetUserProfile from '@/hooks/useGetUserProfile';
-import { Link, useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { AtSign, Heart, MessageCircle } from 'lucide-react';
+import useFollowOrUnfollow from '@/hooks/useFollowOrUnfollow';
+import { setSelectedUser } from '@/redux/chatSlice';
 
 const Profile = () => {
   const params = useParams();
   const userId = params.id;
   useGetUserProfile(userId);
   const [activeTab, setActiveTab] = useState('posts');
+  const followOrUnfollow = useFollowOrUnfollow();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { userProfile, user } = useSelector(store => store.auth);
 
   const isLoggedInUserProfile = user?._id === userProfile?._id;
-  const isFollowing = false;
+  const isFollowing = userProfile?.followers?.includes(user?._id);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+  }
+
+  const messageHandler = (profile) => {
+    dispatch(setSelectedUser(profile));
+    navigate('/chat');
   }
 
   const displayedPost = activeTab === 'posts' ? userProfile?.posts : userProfile?.bookmarks;
@@ -48,11 +58,11 @@ const Profile = () => {
                   ) : (
                     isFollowing ? (
                       <>
-                        <Button variant='secondary' className='h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>Unfollow</Button>
-                        <Button variant='secondary' className='h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>Message</Button>
+                        <Button onClick={() => followOrUnfollow(userProfile?._id)} variant='secondary' className='h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>Unfollow</Button>
+                        <Button onClick={() => messageHandler(userProfile)} variant='secondary' className='h-8 bg-gray-100 dark:bg-[#23272e] text-black dark:text-white'>Message</Button>
                       </>
                     ) : (
-                      <Button className='bg-[#0095F6] hover:bg-[#3192d2] h-8 text-white'>Follow</Button>
+                      <Button onClick={() => followOrUnfollow(userProfile?._id)} className='bg-[#0095F6] hover:bg-[#3192d2] h-8 text-white'>Follow</Button>
                     )
                   )
                 }

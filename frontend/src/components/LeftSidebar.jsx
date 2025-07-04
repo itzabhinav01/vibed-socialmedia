@@ -72,38 +72,46 @@ const LeftSidebar = () => {
                 <div>
                     {
                         sidebarItems.map((item, index) => {
+                            if (item.text === "Notifications") {
+                                return (
+                                    <Popover key={index}>
+                                        <PopoverTrigger asChild>
+                                            <div className='flex items-center gap-3 relative hover:bg-gray-100 dark:hover:bg-[#1F2937] cursor-pointer rounded-lg p-3 my-2 transition-colors duration-200 text-black dark:text-white'>
+                                                {item.icon}
+                                                <span>{item.text}</span>
+                                                {
+                                                    likeNotification.length > 0 && (
+                                                        <Button size='icon' className="rounded-full h-5 w-5 bg-red-600 hover:bg-red-600 absolute bottom-6 left-6">{likeNotification.length}</Button>
+                                                    )
+                                                }
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800">
+                                            <div>
+                                                {
+                                                    likeNotification.length === 0 ? (<p>No new notification</p>) : (
+                                                        likeNotification.map((notification) => {
+                                                            return (
+                                                                <div key={notification.userId} className='flex items-center gap-2 my-2'>
+                                                                    <Avatar>
+                                                                        <AvatarImage src={notification.userDetails?.profilePicture} />
+                                                                        <AvatarFallback>CN</AvatarFallback>
+                                                                    </Avatar>
+                                                                    <p className='text-sm'><span className='font-bold'>{notification.userDetails?.username}</span> liked your post</p>
+                                                                </div>
+                                                            )
+                                                        })
+                                                    )
+                                                }
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                )
+                            }
                             return (
                                 <div onClick={() => sidebarHandler(item.text)} key={index} className='flex items-center gap-3 relative hover:bg-gray-100 dark:hover:bg-[#1F2937] cursor-pointer rounded-lg p-3 my-2 transition-colors duration-200 text-black dark:text-white'>
                                     {item.icon}
                                     <span>{item.text}</span>
-                                    {
-                                        item.text === "Notifications" && likeNotification.length > 0 && (
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button size='icon' className="rounded-full h-5 w-5 bg-red-600 hover:bg-red-600 absolute bottom-6 left-6">{likeNotification.length}</Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800">
-                                                    <div>
-                                                        {
-                                                            likeNotification.length === 0 ? (<p>No new notification</p>) : (
-                                                                likeNotification.map((notification) => {
-                                                                    return (
-                                                                        <div key={notification.userId} className='flex items-center gap-2 my-2'>
-                                                                            <Avatar>
-                                                                                <AvatarImage src={notification.userDetails?.profilePicture} />
-                                                                                <AvatarFallback>CN</AvatarFallback>
-                                                                            </Avatar>
-                                                                            <p className='text-sm'><span className='font-bold'>{notification.userDetails?.username}</span> liked your post</p>
-                                                                        </div>
-                                                                    )
-                                                                })
-                                                            )
-                                                        }
-                                                    </div>
-                                                </PopoverContent>
-                                            </Popover>
-                                        )
-                                    }
                                 </div>
                             )
                         })

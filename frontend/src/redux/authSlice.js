@@ -21,6 +21,10 @@ const authSlice = createSlice({
         },
         setSelectedUser:(state,action) => {
             state.selectedUser = action.payload;
+        },
+        setFollowOrUnfollow:(state,action) => {
+            state.user = action.payload.user;
+            state.userProfile = action.payload.targetUser;
         }
     }
 });
@@ -29,5 +33,6 @@ export const {
     setSuggestedUsers, 
     setUserProfile,
     setSelectedUser,
+    setFollowOrUnfollow
 } = authSlice.actions;
 export default authSlice.reducer;

@@ -167,8 +167,8 @@ export const getSuggestedUsers = async (req, res) => {
 };
 export const followOrUnfollow = async (req, res) => {
     try {
-        const followKrneWala = req.id; // patel
-        const jiskoFollowKrunga = req.params.id; // shivani
+        const followKrneWala = req.id; 
+        const jiskoFollowKrunga = req.params.id; 
         if (followKrneWala === jiskoFollowKrunga) {
             return res.status(400).json({
                 message: 'You cannot follow/unfollow yourself',
@@ -176,8 +176,8 @@ export const followOrUnfollow = async (req, res) => {
             });
         }
 
-        const user = await User.findById(followKrneWala);
-        const targetUser = await User.findById(jiskoFollowKrunga);
+        let user = await User.findById(followKrneWala);
+        let targetUser = await User.findById(jiskoFollowKrunga);
 
         if (!user || !targetUser) {
             return res.status(400).json({
@@ -185,23 +185,28 @@ export const followOrUnfollow = async (req, res) => {
                 success: false
             });
         }
-        // mai check krunga ki follow krna hai ya unfollow
         const isFollowing = user.following.includes(jiskoFollowKrunga);
         if (isFollowing) {
-            // unfollow logic ayega
             await Promise.all([
                 User.updateOne({ _id: followKrneWala }, { $pull: { following: jiskoFollowKrunga } }),
                 User.updateOne({ _id: jiskoFollowKrunga }, { $pull: { followers: followKrneWala } }),
             ])
-            return res.status(200).json({ message: 'Unfollowed successfully', success: true });
         } else {
-            // follow logic ayega
             await Promise.all([
                 User.updateOne({ _id: followKrneWala }, { $push: { following: jiskoFollowKrunga } }),
                 User.updateOne({ _id: jiskoFollowKrunga }, { $push: { followers: followKrneWala } }),
             ])
-            return res.status(200).json({ message: 'followed successfully', success: true });
         }
+        user = await User.findById(followKrneWala).populate('posts').populate('bookmarks');
+        targetUser = await User.findById(jiskoFollowKrunga).populate('posts').populate('bookmarks');
+
+        return res.status(200).json({
+            message: isFollowing ? 'Unfollowed successfully' : 'followed successfully',
+            success: true,
+            user,
+            targetUser
+        })
+
     } catch (error) {
         console.log(error);
     }
