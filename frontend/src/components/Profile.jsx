@@ -80,29 +80,18 @@ const Profile = () => {
               <span className="font-bold block text-black dark:text-white">{userProfile?.name || userProfile?.username}</span>
               <p className="text-sm text-black dark:text-white">{userProfile?.bio || 'bio here...'}</p>
               <Badge className='w-fit bg-gray-100 dark:bg-[#23272e] text-black dark:text-white mt-1' variant='secondary'><AtSign /> <span className='pl-1'>{userProfile?.username}</span> </Badge>
+              {/* Highlights as a list */}
+              {userProfile?.highlights && userProfile.highlights.length > 0 && (
+                <ul className="mt-2 space-y-1">
+                  {userProfile.highlights.map((highlight, idx) => (
+                    <li key={idx} className="flex items-center text-black dark:text-white text-sm">
+                      <span>{highlight}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
-        </div>
-        {/* Highlights row */}
-        <div className="flex gap-4 mb-4 w-full justify-center md:justify-start">
-          {(userProfile?.highlights && userProfile.highlights.length > 0) ? userProfile.highlights.map((highlight, idx) => (
-            <div key={idx} className="flex flex-col items-center">
-              <Avatar className="w-16 h-16 border-2 border-gray-300 dark:border-gray-700">
-                <AvatarFallback className="text-black dark:text-white bg-gray-100 dark:bg-[#374151]">H</AvatarFallback>
-              </Avatar>
-              <span className="text-xs mt-1 text-black dark:text-white">{highlight}</span>
-            </div>
-          )) : (
-            // Show 4 placeholder highlights if none exist
-            Array.from({ length: 4 }).map((_, idx) => (
-              <div key={idx} className="flex flex-col items-center opacity-50">
-                <Avatar className="w-16 h-16 border-2 border-gray-300 dark:border-gray-700">
-                  <AvatarFallback className="text-black dark:text-white bg-gray-100 dark:bg-[#374151]">+</AvatarFallback>
-                </Avatar>
-                <span className="text-xs mt-1 text-black dark:text-white">New</span>
-              </div>
-            ))
-          )}
         </div>
         {/* Tabs */}
         <div className="flex justify-center border-t border-b py-2 mb-4 w-full sticky top-0 z-40 bg-white dark:bg-black">
