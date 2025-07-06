@@ -4,6 +4,7 @@ import LeftSidebar from './LeftSidebar'
 import RightSidebar from './RightSidebar'
 import { Sun, Moon } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
+import MobileNav from './MobileNav'
 
 const MainLayout = () => {
   const { dark, setDark } = useTheme();
@@ -21,6 +22,7 @@ const MainLayout = () => {
         <Outlet/>
       </main>
       <RightSidebar/>
+      <MobileNav />
     </div>
   )
 }

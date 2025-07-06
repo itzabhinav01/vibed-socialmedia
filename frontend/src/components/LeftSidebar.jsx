@@ -67,7 +67,7 @@ const LeftSidebar = () => {
         { icon: <LogOut className="text-black dark:text-white" />, text: "Logout" },
     ]
     return (
-        <div className={`fixed top-0 z-10 left-0 h-screen flex flex-col bg-white dark:bg-black border-r border-gray-200 dark:border-gray-800 transition-colors duration-300 w-[240px]`}>
+        <div className={`hidden xl:flex fixed top-0 z-10 left-0 h-screen flex-col bg-white dark:bg-black border-r border-gray-200 dark:border-gray-800 transition-colors duration-300 w-[240px]`}>
             <div className='flex flex-col mt-8'>
                 <h1 className='pl-3 font-bold text-2xl text-black dark:text-white tracking-tight mb-8'>VIBED</h1>
                 <div>
