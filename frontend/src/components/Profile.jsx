@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import useGetUserProfile from '@/hooks/useGetUserProfile';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -12,7 +12,8 @@ import { setSelectedUser } from '@/redux/chatSlice';
 const Profile = () => {
   const params = useParams();
   const userId = params.id;
-  useGetUserProfile(userId);
+  const location = useLocation();
+  useGetUserProfile(userId, location.key);
   const [activeTab, setActiveTab] = useState('posts');
   const followOrUnfollow = useFollowOrUnfollow();
   const dispatch = useDispatch();
@@ -42,7 +43,7 @@ const Profile = () => {
           {/* Profile image */}
           <div className="flex-shrink-0 flex flex-col items-center w-full md:w-40 mb-4 md:mb-0">
             <Avatar className="h-24 w-24 md:h-40 md:w-40 border-2 border-gray-300 dark:border-gray-700">
-              <AvatarImage src={userProfile?.profilePicture} alt="profilephoto" />
+              <AvatarImage src={isLoggedInUserProfile ? user?.profilePicture : userProfile?.profilePicture} alt="profilephoto" />
               <AvatarFallback className="text-black dark:text-white bg-gray-100 dark:bg-[#374151]">CN</AvatarFallback>
             </Avatar>
           </div>
