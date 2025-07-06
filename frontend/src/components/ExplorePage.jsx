@@ -1,0 +1,139 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import axios from 'axios';
+import { Loader2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogClose,
+} from './ui/dialog';
+import { Button } from './ui/button';
+
+const ExplorePage = () => {
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [images, setImages] = useState([]);
+    const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const observer = useRef();
+
+    const fetchImages = useCallback(async () => {
+        if (loading || !hasMore) return;
+        setLoading(true);
+        try {
+            const response = await axios.get(`https://picsum.photos/v2/list?page=${page}&limit=30`);
+            if (response.data.length === 0) {
+                setHasMore(false);
+            } else {
+                setImages(prevImages => [...prevImages, ...response.data]);
+                setPage(prevPage => prevPage + 1);
+            }
+        } catch (error) {
+            console.error("Error fetching images:", error);
+            setHasMore(false); // Stop trying to fetch if there's an error
+        } finally {
+            setLoading(false);
+        }
+    }, [page, loading, hasMore]);
+
+    useEffect(() => {
+        fetchImages();
+    }, []); // Fetch initial images on mount
+
+    const lastImageElementRef = useCallback(node => {
+        if (loading) return;
+        if (observer.current) observer.current.disconnect();
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore) {
+                fetchImages();
+            }
+        });
+        if (node) observer.current.observe(node);
+    }, [loading, hasMore, fetchImages]);
+
+    const handleImageClick = (image) => {
+        setSelectedImage(image);
+        setIsDialogOpen(true);
+    };
+
+    const handleDownload = async () => {
+        if (selectedImage) {
+            try {
+                const response = await axios.get(selectedImage.download_url, { responseType: 'blob' });
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `explore_image_${selectedImage.id}.jpg`);
+                document.body.appendChild(link);
+                link.click();
+                link.parentNode.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error("Error downloading image:", error);
+            }
+        }
+    };
+
+    return (
+        <div className="w-full flex justify-center bg-white dark:bg-black text-black dark:text-white min-h-screen">
+            <div className="w-full max-w-5xl mx-auto px-0 sm:px-2 py-8 md:pl-60">
+                <h1 className="text-2xl font-bold mb-6 text-center">Explore</h1>
+                <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
+                    {images.map((image, index) => {
+                        if (images.length === index + 1) {
+                            return (
+                                <div ref={lastImageElementRef} key={image.id} className="relative group cursor-pointer bg-gray-100 dark:bg-gray-800 aspect-square overflow-hidden"
+                                    onClick={() => handleImageClick(image)}>
+                                    <img
+                                        src={image.download_url}
+                                        alt={`Explore image ${image.id}`}
+                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                    />
+                                </div>
+                            );
+                        } else {
+                            return (
+                                <div key={image.id} className="relative group cursor-pointer bg-gray-100 dark:bg-gray-800 aspect-square overflow-hidden"
+                                    onClick={() => handleImageClick(image)}>
+                                    <img
+                                        src={image.download_url}
+                                        alt={`Explore image ${image.id}`}
+                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                    />
+                                </div>
+                            );
+                        }
+                    })}
+                </div>
+                {loading && (
+                    <div className="flex justify-center items-center py-4">
+                        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+                    </div>
+                )}
+                {!hasMore && !loading && images.length > 0 && (
+                    <p className="text-center text-gray-500 py-4">No more images to load.</p>
+                )}
+                {!hasMore && !loading && images.length === 0 && (
+                    <p className="text-center text-gray-500 py-4">Could not load images.</p>
+                )}
+            </div>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden">
+                    {selectedImage && (
+                        <div className="flex flex-col items-center">
+                            <img src={selectedImage.download_url} alt="Enlarged" className="max-w-full h-auto" />
+                            <div className="p-4 w-full flex justify-center">
+                                <Button onClick={handleDownload} className="bg-[#0095F6] hover:bg-[#318bc7] text-white">
+                                    Download
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
+};
+
+export default ExplorePage;

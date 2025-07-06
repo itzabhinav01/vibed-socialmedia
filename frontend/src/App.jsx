@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import ChatPage from './components/ChatPage'
 import EditProfile from './components/EditProfile'
+import ExplorePage from './components/ExplorePage'
 import Home from './components/Home'
 import Login from './components/Login'
 import MainLayout from './components/MainLayout'
@@ -35,6 +36,10 @@ const browserRouter = createBrowserRouter([
       {
         path: '/chat',
         element: <ProtectedRoutes><ChatPage /></ProtectedRoutes>
+      },
+      {
+        path: '/explore',
+        element: <ProtectedRoutes><ExplorePage /></ProtectedRoutes>
       },
     ]
   },
