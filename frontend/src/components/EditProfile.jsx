@@ -42,15 +42,12 @@ const EditProfile = () => {
         formData.append("gender", input.gender);
         formData.append("highlights", JSON.stringify([input.highlight1, input.highlight2, input.highlight3]));
         if(selectedFile){
-            formData.append("profilePicture", selectedFile);
+                        formData.append("profilePhoto", selectedFile);
         }
         try {
             setLoading(true);
             const API_URL = import.meta.env.VITE_BACKEND_URL;
             const res = await axios.post(`${API_URL}/api/v1/user/profile/edit`, formData,{
-                headers:{
-                    'Content-Type':'multipart/form-data'
-                },
                 withCredentials:true
             });
             if(res.data.success){
