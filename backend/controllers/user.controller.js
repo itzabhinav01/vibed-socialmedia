@@ -118,11 +118,22 @@ export const editProfile = async (req, res) => {
         const userId = req.id;
         const { bio, gender } = req.body;
         const profilePicture = req.file;
+        console.log('Received profilePicture:', profilePicture); // Log the received file
         let cloudResponse;
 
         if (profilePicture) {
             const fileUri = getDataUri(profilePicture);
-            cloudResponse = await cloudinary.uploader.upload(fileUri);
+            console.log('File URI created:', fileUri.substring(0, 50) + '...'); // Log part of the data URI
+            try {
+                cloudResponse = await cloudinary.uploader.upload(fileUri);
+                console.log('Cloudinary upload response:', cloudResponse); // Log Cloudinary response
+            } catch (cloudinaryError) {
+                console.error('Cloudinary upload failed:', cloudinaryError); // Log Cloudinary specific errors
+                return res.status(500).json({
+                    message: 'Profile picture upload failed.',
+                    success: false
+                });
+            }
         }
 
         const user = await User.findById(userId).select('-password');
@@ -138,6 +149,7 @@ export const editProfile = async (req, res) => {
         if (profilePicture) user.profilePicture = cloudResponse.secure_url;
 
         await user.save();
+        console.log('User saved successfully with new profilePicture:', user.profilePicture); // Log after save
 
         return res.status(200).json({
             message: 'Profile updated.',
@@ -146,7 +158,7 @@ export const editProfile = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
+        console.error('Error in editProfile:', error); // More specific error logging
     }
 };
 export const getSuggestedUsers = async (req, res) => {
