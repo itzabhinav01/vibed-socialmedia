@@ -26,10 +26,21 @@ const categories = [
 const ExplorePage = () => {
     const [selectedImage, setSelectedImage] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState("photos"); // "photos" or "videos"
+
+    // Photo states
     const [images, setImages] = useState([]);
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+
+    // Video states
+    const [videos, setVideos] = useState([]);
+    const [videoPage, setVideoPage] = useState(1);
+    const [videoLoading, setVideoLoading] = useState(false);
+    const [videoHasMore, setVideoHasMore] = useState(true);
+    const [selectedVideo, setSelectedVideo] = useState(null);
+
     const [selectedCategory, setSelectedCategory] = useState(categories[0]); // Default to Curated
     const [searchQuery, setSearchQuery] = useState("");
     const [currentSearchTerm, setCurrentSearchTerm] = useState("");
@@ -75,30 +86,87 @@ const ExplorePage = () => {
         }
     }, [page, loading, hasMore, selectedCategory, currentSearchTerm]);
 
+    const fetchVideos = useCallback(async (reset = false) => {
+        if (videoLoading) return;
+        if (reset) {
+            setVideoPage(1);
+            setVideos([]);
+            setVideoHasMore(true);
+            setVideoLoading(true);
+        } else if (!videoHasMore) {
+            return;
+        }
+
+        setVideoLoading(true);
+        try {
+            let response;
+            const headers = {
+                Authorization: PEXELS_API_KEY,
+            };
+
+            if (currentSearchTerm) {
+                response = await axios.get(`https://api.pexels.com/videos/search?query=${currentSearchTerm}&page=${videoPage}&per_page=30`, { headers });
+            } else if (selectedCategory.query) {
+                response = await axios.get(`https://api.pexels.com/videos/search?query=${selectedCategory.query}&page=${videoPage}&per_page=30`, { headers });
+            } else {
+                response = await axios.get(`https://api.pexels.com/videos/popular?page=${videoPage}&per_page=30`, { headers });
+            }
+
+            if (response.data.videos.length === 0) {
+                setVideoHasMore(false);
+            } else {
+                setVideos(prevVideos => (reset ? response.data.videos : [...prevVideos, ...response.data.videos]));
+                setVideoPage(prevPage => prevPage + 1);
+            }
+        } catch (error) {
+            console.error("Error fetching videos:", error);
+            setVideoHasMore(false);
+        } finally {
+            setVideoLoading(false);
+        }
+    }, [videoPage, videoLoading, videoHasMore, selectedCategory, currentSearchTerm]);
+
     useEffect(() => {
-        fetchImages(true); // Fetch initial images on mount or category/search change
-    }, [selectedCategory, currentSearchTerm]); // Re-fetch when category or search term changes
+        if (activeTab === "photos") {
+            fetchImages(true);
+        } else {
+            fetchVideos(true);
+        }
+    }, [activeTab, selectedCategory, currentSearchTerm]);
 
     const lastImageElementRef = useCallback(node => {
-        if (loading) return;
+        if (activeTab === "photos" && loading) return;
+        if (activeTab === "videos" && videoLoading) return;
+
         if (observer.current) observer.current.disconnect();
         observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && hasMore) {
-                fetchImages();
+            if (entries[0].isIntersecting) {
+                if (activeTab === "photos" && hasMore) {
+                    fetchImages();
+                } else if (activeTab === "videos" && videoHasMore) {
+                    fetchVideos();
+                }
             }
         });
         if (node) observer.current.observe(node);
-    }, [loading, hasMore, fetchImages]);
+    }, [loading, hasMore, fetchImages, videoLoading, videoHasMore, fetchVideos, activeTab]);
 
     const handleImageClick = (image) => {
         setSelectedImage(image);
+        setSelectedVideo(null); // Clear selected video
+        setIsDialogOpen(true);
+    };
+
+    const handleVideoClick = (video) => {
+        setSelectedVideo(video);
+        setSelectedImage(null); // Clear selected image
         setIsDialogOpen(true);
     };
 
     const handleDownload = async () => {
         if (selectedImage) {
             try {
-                const response = await axios.get(selectedImage.download_url, { responseType: 'blob' });
+                const response = await axios.get(selectedImage.src.original, { responseType: 'blob' });
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement('a');
                 link.href = url;
@@ -110,6 +178,25 @@ const ExplorePage = () => {
             } catch (error) {
                 console.error("Error downloading image:", error);
             }
+        } else if (selectedVideo) {
+            try {
+                // Find the highest quality video file
+                const highestQualityVideo = selectedVideo.video_files.reduce((prev, current) => {
+                    return (prev.width * prev.height > current.width * current.height) ? prev : current;
+                });
+
+                const response = await axios.get(highestQualityVideo.link, { responseType: 'blob' });
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `explore_video_${selectedVideo.id}.mp4`); // Assuming mp4
+                document.body.appendChild(link);
+                link.click();
+                link.parentNode.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error("Error downloading video:", error);
+            }
         }
     };
 
@@ -117,6 +204,24 @@ const ExplorePage = () => {
         <div className="w-full flex justify-center bg-white dark:bg-black text-black dark:text-white min-h-screen">
             <div className="w-full max-w-5xl mx-auto px-0 sm:px-2 py-8 md:pl-60">
                 <h1 className="text-2xl font-bold mb-6 text-center">Explore</h1>
+
+                {/* Tab Buttons */}
+                <div className="flex justify-center gap-4 mb-6">
+                    <Button
+                        variant={activeTab === "photos" ? "default" : "outline"}
+                        onClick={() => setActiveTab("photos")}
+                        className="rounded-full"
+                    >
+                        Photos
+                    </Button>
+                    <Button
+                        variant={activeTab === "videos" ? "default" : "outline"}
+                        onClick={() => setActiveTab("videos")}
+                        className="rounded-full"
+                    >
+                        Videos
+                    </Button>
+                </div>
 
                 {/* Category Buttons */}
                 <div className="flex flex-wrap justify-center gap-2 mb-6">
@@ -139,7 +244,7 @@ const ExplorePage = () => {
                 <div className="flex items-center gap-2 mb-6 px-4">
                     <Input
                         type="text"
-                        placeholder="Search for images..."
+                        placeholder={`Search for ${activeTab === "photos" ? "images" : "videos"}...`}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyPress={(e) => {
@@ -158,43 +263,95 @@ const ExplorePage = () => {
                     </Button>
                 </div>
 
-                <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
-                    {images.map((image, index) => {
-                        if (images.length === index + 1) {
-                            return (
-                                <div ref={lastImageElementRef} key={image.id} className="relative group cursor-pointer bg-gray-100 dark:bg-gray-800 aspect-square overflow-hidden"
-                                    onClick={() => handleImageClick(image)}>
-                                    <img
-                                        src={image.src.medium}
-                                        alt={image.alt}
-                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                    />
-                                </div>
-                            );
-                        } else {
-                            return (
-                                <div key={image.id} className="relative group cursor-pointer bg-gray-100 dark:bg-gray-800 aspect-square overflow-hidden"
-                                    onClick={() => handleImageClick(image)}>
-                                    <img
-                                        src={image.src.medium}
-                                        alt={image.alt}
-                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                    />
-                                </div>
-                            );
-                        }
-                    })}
-                </div>
-                {loading && (
+                {activeTab === "photos" && (
+                    <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
+                        {images.map((image, index) => {
+                            if (images.length === index + 1) {
+                                return (
+                                    <div ref={lastImageElementRef} key={image.id} className="relative group cursor-pointer bg-gray-100 dark:bg-gray-800 aspect-square overflow-hidden"
+                                        onClick={() => handleImageClick(image)}>
+                                        <img
+                                            src={image.src.medium}
+                                            alt={image.alt}
+                                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        />
+                                    </div>
+                                );
+                            } else {
+                                return (
+                                    <div key={image.id} className="relative group cursor-pointer bg-gray-100 dark:bg-gray-800 aspect-square overflow-hidden"
+                                        onClick={() => handleImageClick(image)}>
+                                        <img
+                                            src={image.src.medium}
+                                            alt={image.alt}
+                                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        />
+                                    </div>
+                                );
+                            }
+                        })}
+                    </div>
+                )}
+
+                {activeTab === "videos" && (
+                    <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
+                        {videos.map((video, index) => {
+                            if (videos.length === index + 1) {
+                                return (
+                                    <div ref={lastImageElementRef} key={video.id} className="relative group cursor-pointer bg-gray-100 dark:bg-gray-800 aspect-square overflow-hidden"
+                                        onClick={() => handleVideoClick(video)}>
+                                        <img
+                                            src={video.image}
+                                            alt={video.url}
+                                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <span className="text-white text-xl font-bold">▶</span>
+                                        </div>
+                                    </div>
+                                );
+                            } else {
+                                return (
+                                    <div key={video.id} className="relative group cursor-pointer bg-gray-100 dark:bg-gray-800 aspect-square overflow-hidden"
+                                        onClick={() => handleVideoClick(video)}>
+                                        <img
+                                            src={video.image}
+                                            alt={video.url}
+                                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <span className="text-white text-xl font-bold">▶</span>
+                                        </div>
+                                    </div>
+                                );
+                            }
+                        })}
+                    </div>
+                )}
+
+                {activeTab === "photos" && loading && (
                     <div className="flex justify-center items-center py-4">
                         <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
                     </div>
                 )}
-                {!hasMore && !loading && images.length > 0 && (
+                {activeTab === "videos" && videoLoading && (
+                    <div className="flex justify-center items-center py-4">
+                        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+                    </div>
+                )}
+
+                {activeTab === "photos" && !hasMore && !loading && images.length > 0 && (
                     <p className="text-center text-gray-500 py-4">No more images to load.</p>
                 )}
-                {!hasMore && !loading && images.length === 0 && (
+                {activeTab === "videos" && !videoHasMore && !videoLoading && videos.length > 0 && (
+                    <p className="text-center text-gray-500 py-4">No more videos to load.</p>
+                )}
+
+                {activeTab === "photos" && !hasMore && !loading && images.length === 0 && (
                     <p className="text-center text-gray-500 py-4">Could not load images.</p>
+                )}
+                {activeTab === "videos" && !videoHasMore && !videoLoading && videos.length === 0 && (
+                    <p className="text-center text-gray-500 py-4">Could not load videos.</p>
                 )}
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -204,6 +361,22 @@ const ExplorePage = () => {
                             <img src={selectedImage.src.large} alt="Enlarged" className="max-w-full h-auto" />
                             <div className="p-4 w-full flex flex-col items-center">
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Photo by: {selectedImage.photographer}</p>
+                                <Button onClick={handleDownload} className="bg-[#0095F6] hover:bg-[#318bc7] text-white">
+                                    Download
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                    {selectedVideo && (
+                        <div className="flex flex-col items-center">
+                            <video controls className="max-w-full h-auto">
+                                {selectedVideo.video_files.map(file => (
+                                    <source key={file.id} src={file.link} type={file.file_type} />
+                                ))}
+                                Your browser does not support the video tag.
+                            </video>
+                            <div className="p-4 w-full flex flex-col items-center">
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Video by: {selectedVideo.user.name}</p>
                                 <Button onClick={handleDownload} className="bg-[#0095F6] hover:bg-[#318bc7] text-white">
                                     Download
                                 </Button>
