@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 
-const useGetUserProfile = (userId) => {
+const useGetUserProfile = (userId, locationKey) => {
     const dispatch = useDispatch();
     // const [userProfile, setUserProfile] = useState(null);
     useEffect(() => {
@@ -20,6 +20,6 @@ const useGetUserProfile = (userId) => {
             }
         }
         fetchUserProfile();
-    }, [userId]);
+    }, [userId, locationKey]);
 };
 export default useGetUserProfile;
