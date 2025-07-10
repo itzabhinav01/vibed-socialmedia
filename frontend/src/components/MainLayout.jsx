@@ -1,16 +1,18 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import LeftSidebar from './LeftSidebar'
 import RightSidebar from './RightSidebar'
 import { Sun, Moon } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import MobileNav from './MobileNav'
+import CreatePost from './CreatePost'
 
 const MainLayout = () => {
   const { dark, setDark } = useTheme();
+  const [openCreatePost, setOpenCreatePost] = useState(false);
   return (
     <div className="flex min-h-screen bg-white dark:bg-black">
-      <LeftSidebar/>
+      <LeftSidebar setOpenCreatePost={setOpenCreatePost}/>
       <main className="flex-1 flex flex-col items-center h-full">
         <button
           aria-label="Toggle dark mode"
@@ -22,7 +24,9 @@ const MainLayout = () => {
         <Outlet/>
       </main>
       <RightSidebar/>
-      <MobileNav />
+      
+    <MobileNav setOpenCreatePost={setOpenCreatePost}/>
+    <CreatePost open={openCreatePost} setOpen={setOpenCreatePost} />
     </div>
   )
 }

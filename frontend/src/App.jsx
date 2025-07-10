@@ -41,6 +41,15 @@ const browserRouter = createBrowserRouter([
         path: '/explore',
         element: <ProtectedRoutes><ExplorePage /></ProtectedRoutes>
       },
+      {
+        path: '/search',
+        element: <ProtectedRoutes><Home /></ProtectedRoutes>
+      },
+      
+      {
+        path: '/notifications',
+        element: <ProtectedRoutes><Home /></ProtectedRoutes>
+      },
     ]
   },
   {

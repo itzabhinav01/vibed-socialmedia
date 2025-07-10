@@ -11,12 +11,11 @@ import { setPosts, setSelectedPost } from '@/redux/postSlice'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { Button } from './ui/button'
 
-const LeftSidebar = () => {
+const LeftSidebar = ({ setOpenCreatePost }) => {
     const navigate = useNavigate();
     const { user } = useSelector(store => store.auth);
     const { likeNotification } = useSelector(store => store.realTimeNotification);
     const dispatch = useDispatch();
-    const [open, setOpen] = React.useState(false);
 
     const logoutHandler = async () => {
         try {
@@ -38,7 +37,7 @@ const LeftSidebar = () => {
         if (textType === 'Logout') {
             logoutHandler();
         } else if (textType === "Create") {
-            setOpen(true);
+            setOpenCreatePost(true);
         } else if (textType === "Profile") {
             navigate(`/profile/${user?._id}`);
         } else if (textType === "Home") {
@@ -121,7 +120,7 @@ const LeftSidebar = () => {
                     }
                 </div>
             </div>
-            <CreatePost open={open} setOpen={setOpen} />
+            
         </div>
     )
 }

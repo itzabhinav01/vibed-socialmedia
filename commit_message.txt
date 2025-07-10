@@ -1,1 +1,1 @@
-feat: Add detailed logging to editProfile for debugging
+feat: implement dark mode for post components
