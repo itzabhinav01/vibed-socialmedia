@@ -133,7 +133,7 @@ const Post = ({ post }) => {
                     </DialogTrigger>
                     <DialogContent className="flex flex-col items-center text-sm text-center">
                         {
-                        post?.author?._id !== user?._id && <Button variant='ghost' className="cursor-pointer w-fit text-[#ED4956] font-bold">Unfollow</Button>
+                        post?.author?._id !== user?._id && <Button variant='ghost-destructive' className="cursor-pointer w-fit">Unfollow</Button>
                         }
                         
                         <Button variant='ghost' className="cursor-pointer w-fit">Add to favorites</Button>

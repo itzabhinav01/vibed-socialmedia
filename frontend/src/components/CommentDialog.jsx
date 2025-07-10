@@ -69,7 +69,7 @@ const CommentDialog = ({ open, setOpen }) => {
               className='w-full h-full object-cover rounded-l-lg'
             />
           </div>
-          <div className='w-1/2 flex flex-col justify-between'>
+          <div className='w-1/2 flex flex-col justify-between bg-white dark:bg-black'>
             <div className='flex items-center justify-between p-4'>
               <div className='flex gap-3 items-center'>
                 <Link>
@@ -79,26 +79,26 @@ const CommentDialog = ({ open, setOpen }) => {
                   </Avatar>
                 </Link>
                 <div>
-                  <Link className='font-semibold text-xs'>{selectedPost?.author?.username}</Link>
+                  <Link className='font-semibold text-xs text-black dark:text-white'>{selectedPost?.author?.username}</Link>
                   {/* <span className='text-gray-600 text-sm'>Bio here...</span> */}
                 </div>
               </div>
 
               <Dialog>
                 <DialogTrigger asChild>
-                  <MoreHorizontal className='cursor-pointer' />
+                  <MoreHorizontal className='cursor-pointer text-black dark:text-white' />
                 </DialogTrigger>
                 <DialogContent className="flex flex-col items-center text-sm text-center">
-                  <div className='cursor-pointer w-full text-[#ED4956] font-bold'>
+                  <Button variant='ghost-destructive' className='cursor-pointer w-full'>
                     Unfollow
-                  </div>
-                  <div className='cursor-pointer w-full'>
+                  </Button>
+                  <Button variant='ghost' className='cursor-pointer w-full'>
                     Add to favorites
-                  </div>
+                  </Button>
                 </DialogContent>
               </Dialog>
             </div>
-            <hr />
+            <hr className='dark:border-gray-600'/>
             <div className='flex-1 overflow-y-auto max-h-96 p-4'>
               {
                 comment.map((comment) => <Comment key={comment._id} comment={comment} />)
@@ -106,7 +106,7 @@ const CommentDialog = ({ open, setOpen }) => {
             </div>
             <div className='p-4'>
               <div className='flex items-center gap-2'>
-                <input type="text" value={text} onChange={changeEventHandler} placeholder='Add a comment...' className='w-full outline-none border text-sm border-gray-300 p-2 rounded' />
+                <input type="text" value={text} onChange={changeEventHandler} placeholder='Add a comment...' className='w-full outline-none border text-sm border-gray-300 dark:border-gray-600 p-2 rounded bg-white dark:bg-black text-black dark:text-white' />
                 <Button disabled={!text.trim()} onClick={sendMessageHandler} variant="outline">Send</Button>
               </div>
             </div>
